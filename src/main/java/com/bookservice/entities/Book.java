@@ -6,7 +6,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "books")
 public class Book {
 
     @Id
@@ -19,8 +18,11 @@ public class Book {
     @NotBlank
     private String isbn;
 
-    @ManyToMany(mappedBy = "authors")
-    private Set<Author> authors = new HashSet<>();
+    @ManyToMany
+    @JoinTable(name = "book_author",
+    joinColumns = @JoinColumn(name = "author_id"),
+    inverseJoinColumns = @JoinColumn(name = "book_id"))
+    private Set<Author> authors;
 
     public Long getId() {
         return id;
@@ -52,5 +54,15 @@ public class Book {
 
     public void setAuthors(Set<Author> authors) {
         this.authors = authors;
+    }
+
+    @Override
+    public String toString() {
+        return "Book{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", isbn='" + isbn + '\'' +
+                ", authors=" + authors +
+                '}';
     }
 }

@@ -1,12 +1,13 @@
 package com.bookservice.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "authors")
 public class Author {
 
     @Id
@@ -19,8 +20,9 @@ public class Author {
     @NotBlank
     private String lastName;
 
-    @ManyToMany(mappedBy = "books")
-    private Set<Book> books = new HashSet<>();
+    @JsonBackReference
+    @ManyToMany(mappedBy = "authors")
+    private Set<Book> books;
 
     public Long getId() {
         return id;
@@ -54,4 +56,13 @@ public class Author {
         this.books = books;
     }
 
+    @Override
+    public String toString() {
+        return "Author{" +
+                "id=" + id +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", books=" + books +
+                '}';
+    }
 }
