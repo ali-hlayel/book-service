@@ -30,7 +30,9 @@ public class BookServiceImpl implements BookService {
         Book result;
         if (bookRepository.existsByIsbn(book.getIsbn())) {
             throw new EntityAlreadyExistsException("The Isbn  " + book.getIsbn() + " is already exists.");
-        } else result = bookRepository.save(book);
+        } else {
+            result = bookRepository.save(book);
+        }
 
         return result;
     }
