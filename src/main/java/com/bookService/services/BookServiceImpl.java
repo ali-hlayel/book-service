@@ -1,12 +1,9 @@
 package com.bookService.services;
 
 import com.bookService.config.exceptions.EntityAlreadyExistsException;
-import com.bookService.entities.Author;
 import com.bookService.entities.Book;
-import com.bookService.models.BookModel;
 import com.bookService.repositories.AuthorRepository;
 import com.bookService.repositories.BookRepository;
-import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -29,19 +26,17 @@ public class BookServiceImpl implements BookService {
 
     @Transactional
     @Override
-    public Book create(BookModel bookModel) throws EntityAlreadyExistsException {
-        Book book = new Book();
+    public Book create(Book book) throws EntityAlreadyExistsException {
         Book result;
-        if (!bookRepository.existsByIsbn(bookModel.getIsbn())) {
-            book = bookModelMapper(bookModel);
-            result = bookRepository.save(book);
-        } else
+        if (bookRepository.existsByIsbn(book.getIsbn())) {
             throw new EntityAlreadyExistsException("The Isbn  " + book.getIsbn() + " is already exists.");
+        } else result = bookRepository.save(book);
+
         return result;
     }
 
     @Override
-    public Book getByIsbn(String isbn) throws NoResultException{
+    public Book getByIsbn(String isbn) throws NoResultException {
         Optional<Book> optionalBook = Optional.ofNullable(bookRepository.findByIsbn(isbn));
         if (!optionalBook.isPresent()) {
             throw new NoResultException("Could not find book with ISBN " + isbn);
@@ -64,17 +59,4 @@ public class BookServiceImpl implements BookService {
         List<Book> personsList = personsPage.getContent();
         return personsList;
     }
-
-    public Book bookModelMapper(BookModel bookModel) {
-        Book book = new Book();
-        BeanUtils.copyProperties(bookModel, book);
-        bookModel.getAuthors().stream().forEach(author -> {
-            Author bookAuthor = new Author();
-            bookAuthor.setFirstName(author.getFirstName());
-            bookAuthor.setLastName(author.getLastName());
-            book.getAuthors().add(bookAuthor);
-        });
-        return book;
-    }
-
 }

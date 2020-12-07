@@ -3,8 +3,6 @@ package com.bookService.services;
 import com.bookService.config.exceptions.EntityAlreadyExistsException;
 import com.bookService.entities.Book;
 import com.bookService.model.TestBookFactory;
-import com.bookService.models.BookModel;
-import com.bookService.repositories.AuthorRepository;
 import com.bookService.repositories.BookRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -19,7 +17,6 @@ import org.springframework.data.domain.PageRequest;
 import javax.persistence.NoResultException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.AdditionalAnswers.returnsFirstArg;
@@ -38,13 +35,18 @@ class BookServiceImplTest {
     @Test
     void testCreate() throws EntityAlreadyExistsException {
         Book book = TestBookFactory.createNewBook();
-        book.setId(1L);
-        when(bookRepository.existsByIsbn(any(String.class))).thenReturn(false);
-        when(bookRepository.save(any(Book.class))).thenReturn(book);
-        Book result = bookService.create(TestBookFactory.bookModel());
-        assertEquals("978-3-929526-96-7", result.getIsbn());
-        verify(bookRepository).save(book);
+        when(bookRepository.existsByIsbn("978-3-929526-96-7")).thenReturn(false);
+        doAnswer(returnsFirstArg()).when(bookRepository).save(any(Book.class));
+        Book result = bookService.create(book);
+        assertEquals(book.getIsbn(), result.getIsbn());
+        assertEquals(book.getTitle(), result.getTitle());
+    }
 
+    @Test
+    void testCreateThrowsEntityAlreadyExistsException() {
+        Book book = TestBookFactory.createNewBook();
+        when(bookRepository.existsByIsbn(any(String.class))).thenReturn(true);
+        assertThrows(EntityAlreadyExistsException.class, () -> bookService.create(book));
     }
 
     @Test

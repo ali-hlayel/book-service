@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface BookService {
 
-    Book create(BookModel bookModel) throws EntityAlreadyExistsException;
+    Book create(Book book) throws EntityAlreadyExistsException;
 
     Book getByIsbn(String isbn) throws NoResultException;
 

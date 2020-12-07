@@ -6,6 +6,7 @@ import com.bookService.config.exceptions.NotFoundException;
 import com.bookService.config.exceptions.ServiceResponseException;
 import com.bookService.entities.Book;
 import com.bookService.models.BookModel;
+import com.bookService.models.BookModelMapper;
 import com.bookService.services.BookService;
 import io.swagger.annotations.ApiOperation;
 import org.modelmapper.ModelMapper;
@@ -31,16 +32,20 @@ public class BookController {
 
     private BookService bookService;
 
+    private final BookModelMapper bookModelMapper;
+
     @Autowired
-    public BookController(BookService bookService) {
+    public BookController(BookService bookService, BookModelMapper bookModelMapper) {
         this.bookService = bookService;
+        this.bookModelMapper = bookModelMapper;
     }
 
     @ApiOperation("Creates new Book")
     @PostMapping("/book")
     @ResponseStatus(HttpStatus.CREATED)
     public Book createBook(@Valid @RequestBody BookModel createModel) throws EntityAlreadyExistsException {
-        Book result = bookService.create(createModel);
+        Book book = bookModelMapper.bookModelToBookEntity(createModel);
+        Book result = bookService.create(book);
         return result;
     }
 
@@ -65,7 +70,7 @@ public class BookController {
     @GetMapping(value = "/books")
     public ResponseEntity<List<BookModel>> getBooks(@RequestParam(value = "page", defaultValue = "0") int page,
                                                     @RequestParam(value = "limit", defaultValue = "10") int limit) {
-        try {
+
             List<BookModel> results = new ArrayList<>();
             List<Book> bookList = bookService.getBooks(page, limit);
             ModelMapper modelMapper = new ModelMapper();
@@ -73,9 +78,6 @@ public class BookController {
                 results.add(modelMapper.map(book, BookModel.class));
             }
             return new ResponseEntity<>(results, HttpStatus.OK);
-        } catch (NoResultException e) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
     }
 
     @ApiOperation("Deletes a book")
