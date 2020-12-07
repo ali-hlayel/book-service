@@ -2,6 +2,7 @@ package com.bookService.controllers;
 
 import com.bookService.config.exceptions.BadRequestException;
 import com.bookService.config.exceptions.EntityAlreadyExistsException;
+import com.bookService.config.exceptions.NotFoundException;
 import com.bookService.config.exceptions.ServiceResponseException;
 import com.bookService.entities.Book;
 import com.bookService.models.BookModel;
@@ -43,19 +44,20 @@ public class BookController {
         return result;
     }
 
-    @ApiOperation("Get Book by id")
+    @ApiOperation("Get Book by ISBN")
     @GetMapping(path = "/book/{isbn}")
-    public ResponseEntity<BookModel> getBook(@Min(1) @PathVariable String isbn) {
+    public ResponseEntity<BookModel> getBook(@Min(1) @PathVariable String isbn) throws ServiceResponseException {
         Book result;
-        BookModel book;
+        BookModel bookModel;
         try {
             result = bookService.getByIsbn(isbn);
             ModelMapper modelMapper = new ModelMapper();
-            book = modelMapper.map(result, BookModel.class);
-
-            return new ResponseEntity<>(book, HttpStatus.OK);
+            bookModel = modelMapper.map(result, BookModel.class);
+            return new ResponseEntity<>(bookModel, HttpStatus.OK);
         } catch (NoResultException e) {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+            String message = "Could not get a Book: " + e.getMessage();
+            LOGGER.error(message, e);
+            throw new NotFoundException(message, e);
         }
     }
 

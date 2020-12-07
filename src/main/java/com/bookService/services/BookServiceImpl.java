@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import javax.persistence.NoResultException;
 import java.util.List;
+import java.util.Optional;
 
 @Service("bookService")
 public class BookServiceImpl implements BookService {
@@ -40,9 +41,12 @@ public class BookServiceImpl implements BookService {
     }
 
     @Override
-    public Book getByIsbn(String isbn) throws NoResultException {
-        Book result = bookRepository.findByIsbn(isbn);
-
+    public Book getByIsbn(String isbn) throws NoResultException{
+        Optional<Book> optionalBook = Optional.ofNullable(bookRepository.findByIsbn(isbn));
+        if (!optionalBook.isPresent()) {
+            throw new NoResultException("Could not find book with ISBN " + isbn);
+        }
+        Book result = optionalBook.get();
         return result;
     }
 

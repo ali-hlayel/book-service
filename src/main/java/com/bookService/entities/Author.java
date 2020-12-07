@@ -1,5 +1,6 @@
 package com.bookService.entities;
 
+import com.bookService.models.AuthorModel;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.Setter;
@@ -31,6 +32,7 @@ public class Author {
     @Override
     public String toString() {
         return "Author{" +
+                "id=" + id +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
                 ", books=" + books +
