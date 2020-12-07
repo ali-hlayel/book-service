@@ -2,7 +2,6 @@ package com.bookService.services;
 
 import com.bookService.config.exceptions.EntityAlreadyExistsException;
 import com.bookService.entities.Book;
-import com.bookService.models.BookModel;
 
 import javax.persistence.NoResultException;
 import java.util.List;

@@ -1,9 +1,6 @@
 package com.bookService.controllers;
 
-import com.bookService.config.exceptions.BadRequestException;
-import com.bookService.config.exceptions.EntityAlreadyExistsException;
-import com.bookService.config.exceptions.NotFoundException;
-import com.bookService.config.exceptions.ServiceResponseException;
+import com.bookService.config.exceptions.*;
 import com.bookService.entities.Book;
 import com.bookService.models.BookModel;
 import com.bookService.models.BookModelMapper;
@@ -42,11 +39,17 @@ public class BookController {
 
     @ApiOperation("Creates new Book")
     @PostMapping("/book")
-    @ResponseStatus(HttpStatus.CREATED)
-    public Book createBook(@Valid @RequestBody BookModel createModel) throws EntityAlreadyExistsException {
+    public ResponseEntity<Book> createBook(@Valid @RequestBody BookModel createModel) throws ServiceResponseException {
+        Book result;
         Book book = bookModelMapper.bookModelToBookEntity(createModel);
-        Book result = bookService.create(book);
-        return result;
+        try {
+            result = bookService.create(book);
+            return new ResponseEntity<>(result, HttpStatus.CREATED);
+        } catch (EntityAlreadyExistsException e) {
+            String message = "Could not create a Book: " + e.getMessage();
+            LOGGER.error(message, e);
+            throw new UnprocessableEntityException(message, e);
+        }
     }
 
     @ApiOperation("Get Book by ISBN")

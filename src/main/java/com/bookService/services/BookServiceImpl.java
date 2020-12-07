@@ -29,11 +29,10 @@ public class BookServiceImpl implements BookService {
     public Book create(Book book) throws EntityAlreadyExistsException {
         Book result;
         if (bookRepository.existsByIsbn(book.getIsbn())) {
-            throw new EntityAlreadyExistsException("The Isbn  " + book.getIsbn() + " is already exists.");
-        } else {
-            result = bookRepository.save(book);
+            throw new EntityAlreadyExistsException("Can't create Book, ISBN " + book
+                    .getIsbn() + " is already in exist.");
         }
-
+            result = bookRepository.save(book);
         return result;
     }
 
